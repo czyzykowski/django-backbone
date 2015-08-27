@@ -105,7 +105,7 @@ class BackboneAPIView(View):
         try:
             # backbone sends data in the body in json format
             # Conditional statement is for backwards compatibility with Django <= 1.3
-            data = json.loads((request.body if hasattr(request, 'body') else request.raw_post_data).decode('utf-8))
+            data = json.loads((request.body if hasattr(request, 'body') else request.raw_post_data).decode('utf-8'))
         except ValueError:
             return HttpResponseBadRequest(_('Unable to parse JSON request body.'))
 
