@@ -24,6 +24,8 @@ class BackboneAPIView(View):
     url_slug = None  # The slug to be used when constructing the url (and url name) for this view.
                      # Defaults to lowercase model name. Change this if you have multiple views for the same model.
 
+    id_attribute = 'id'
+
     def queryset(self, request, **kwargs):
         """
         Returns the queryset (along with ordering) to be used when retrieving object(s).
@@ -41,7 +43,7 @@ class BackboneAPIView(View):
             return HttpResponseForbidden(_('You do not have permission to perform this action.'))
 
         if id:
-            obj = get_object_or_404(self.queryset(request, **kwargs), id=id)
+            obj = get_object_or_404(self.queryset(request, **kwargs), **{self.id_attribute: id})
             return self.get_object_detail(request, obj)
         else:
             return self.get_collection(request, **kwargs)
@@ -55,7 +57,7 @@ class BackboneAPIView(View):
         else:
             display_fields = self.display_fields
 
-        data = self.serialize(obj, ['id'] + list(display_fields))
+        data = self.serialize(obj, [self.id_attribute] + list(display_fields))
         return HttpResponse(self.json_dumps(data), content_type='application/json')
 
     def get_collection(self, request, **kwargs):
@@ -135,7 +137,7 @@ class BackboneAPIView(View):
         Handles put requests.
         """
         if id:
-            obj = get_object_or_404(self.queryset(request), id=id)
+            obj = get_object_or_404(self.queryset(request), **{self.id_attribute: id})
             if not self.has_update_permission(request, obj):
                 return HttpResponseForbidden(_('You do not have permission to perform this action.'))
             else:
@@ -185,7 +187,7 @@ class BackboneAPIView(View):
         Handles delete requests.
         """
         if id:
-            obj = get_object_or_404(self.queryset(request), id=id)
+            obj = get_object_or_404(self.queryset(request), **{self.id_attribute: id})
             if not self.has_delete_permission(request, obj):
                 return HttpResponseForbidden(_('You do not have permission to perform this action.'))
             else:
